@@ -8,7 +8,7 @@ Thank you for considering contributing to the Django BigQuery Connector! This do
 
 2. Clone your fork locally:
    ```bash
-   git clone https://github.com/your-username/django-bigquery-connector.git
+   git clone https://github.com/ossown/django-bigquery-connector.git
    cd django-bigquery-connector
    ```
 

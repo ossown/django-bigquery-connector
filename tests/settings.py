@@ -17,7 +17,7 @@ DATABASES = {
         'NAME': ':memory:',
     },
     'bigquery': {
-        'ENGINE': 'django_bigquery_connector',
+        'ENGINE': 'django_bq',
         'PROJECT': 'test-project',
         'CREDENTIALS': None,
         'LOCATION': 'us-central1',

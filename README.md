@@ -28,7 +28,7 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     },
     'bigquery': {
-        'ENGINE': 'django_bigquery_connector',
+        'ENGINE': 'django_bq',
         'PROJECT': 'your-gcp-project-id',
         'CREDENTIALS': None,  # Uses default credentials, or provide a credentials object
         'LOCATION': 'us-central1',  # Optional: BigQuery location
@@ -57,7 +57,7 @@ You can provide credentials in three ways:
    
    DATABASES = {
        'bigquery': {
-           'ENGINE': 'django_bigquery_connector',
+           'ENGINE': 'django_bq',
            'PROJECT': 'your-gcp-project-id',
            'CREDENTIALS': credentials,
        }

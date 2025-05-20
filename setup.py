@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 # Read the version from __init__.py
-with open(os.path.join("django_bigquery_connector", "__init__.py"), "r") as f:
+with open(os.path.join("django_bq", "__init__.py"), "r") as f:
     for line in f:
         if line.startswith("__version__"):
             version = line.split("=")[1].strip().strip('"').strip("'")
@@ -22,7 +22,7 @@ setup(
     description="Django ORM connector for Google BigQuery",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/django-bigquery-connector",
+    url="https://github.com/ossown/django-bigquery-connector",
     packages=find_packages(exclude=["tests", "tests.*"]),
     classifiers=[
         "Development Status :: 3 - Alpha",
@@ -61,8 +61,8 @@ setup(
     },
     keywords=["django", "bigquery", "database", "orm", "connector"],
     project_urls={
-        "Bug Tracker": "https://github.com/yourusername/django-bigquery-connector/issues",
-        "Documentation": "https://github.com/yourusername/django-bigquery-connector",
-        "Source Code": "https://github.com/yourusername/django-bigquery-connector",
+        "Bug Tracker": "https://github.com/ossown/django-bigquery-connector/issues",
+        "Documentation": "https://github.com/ossown/django-bigquery-connector",
+        "Source Code": "https://github.com/ossown/django-bigquery-connector",
     },
 )

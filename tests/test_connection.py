@@ -2,7 +2,7 @@ from unittest import mock
 
 from django.test import SimpleTestCase
 
-from django_bigquery_connector.base import DatabaseWrapper
+from django_bq.base import DatabaseWrapper
 
 
 class TestConnection(SimpleTestCase):

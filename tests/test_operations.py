@@ -1,7 +1,7 @@
 from unittest import mock
 from django.test import SimpleTestCase
 
-from django_bigquery_connector.operations import DatabaseOperations
+from django_bq.operations import DatabaseOperations
 
 
 class TestDatabaseOperations(SimpleTestCase):

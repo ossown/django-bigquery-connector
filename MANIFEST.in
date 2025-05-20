@@ -2,7 +2,7 @@ include LICENSE
 include README.md
 include CONTRIBUTING.md
 include pytest.ini
-recursive-include django_bigquery_connector *
+recursive-include django_bq *
 recursive-include tests *
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
