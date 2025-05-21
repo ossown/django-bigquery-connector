@@ -1,4 +1,4 @@
-.PHONY: clean clean-test clean-pyc clean-build docs help test
+.PHONY: clean clean-test clean-pyc clean-build docs help test test-local
 .DEFAULT_GOAL := help
 
 help:
@@ -7,6 +7,7 @@ help:
 	@echo "clean-pyc - remove Python file artifacts"
 	@echo "clean-test - remove test and coverage artifacts"
 	@echo "test - run tests quickly with the default Python"
+	@echo "test-local - run tests locally with proper PYTHONPATH"
 	@echo "dist - build package for distribution"
 	@echo "release - package and upload a release"
 	@echo "install - install the package to the active Python's site-packages"
@@ -32,6 +33,9 @@ clean-test:
 
 test:
 	pytest
+
+test-local:
+	PYTHONPATH=$$PYTHONPATH:. pytest
 
 dist: clean
 	python setup.py sdist
