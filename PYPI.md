@@ -16,7 +16,7 @@ pip install wheel twine
 
 2. Update version number in:
    - `setup.py`
-   - `django_bigquery_connector/__init__.py`
+   - `django_bq/__init__.py`
 
 3. Build the package:
 
