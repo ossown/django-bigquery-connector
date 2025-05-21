@@ -30,6 +30,8 @@ jobs:
         pip install "django==${{ matrix.django-version }}"
     
     - name: Run tests
+      env:
+        PYTHONPATH: ${{ github.workspace }}
       run: |
         pytest
 
