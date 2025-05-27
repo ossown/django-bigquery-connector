@@ -1,4 +1,4 @@
-from django_bigquery_connector.base import DatabaseWrapper as BigQueryDatabaseWrapper
+from django_bq.base import DatabaseWrapper as BigQueryDatabaseWrapper
 
 class DatabaseWrapper(BigQueryDatabaseWrapper):
     """
