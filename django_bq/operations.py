@@ -12,7 +12,7 @@ class DatabaseOperations(BaseDatabaseOperations):
 
     def __init__(self, connection):
         super().__init__(connection)
-        self.dataset = getattr(settings, "BIGQUERY_DATASET", None) or settings.DATABASES['default'].get("NAME")
+        self.dataset = self.connection.settings_dict.get('NAME')
 
     def quote_name(self, name):
         table_name_mapping = {m._meta.db_table: f'{self.dataset}.{m._meta.db_table}' for m in django.apps.apps.get_models()}
