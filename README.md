@@ -32,11 +32,9 @@ DATABASES = {
         'PROJECT': 'your-gcp-project-id',
         'CREDENTIALS': None,  # Uses default credentials, or provide a credentials object
         'LOCATION': 'us-central1',  # Optional: BigQuery location
+        'NAME': 'your-bigquery-dataset-name'
     }
 }
-
-# Optional: Set a default BigQuery dataset for all queries
-BIGQUERY_DATASET = 'your_dataset_name'
 ```
 
 ## Authentication
@@ -54,12 +52,13 @@ You can provide credentials in three ways:
    credentials = service_account.Credentials.from_service_account_file(
        '/path/to/your/service-account-file.json',
    )
-   
+
    DATABASES = {
        'bigquery': {
            'ENGINE': 'django_bq',
            'PROJECT': 'your-gcp-project-id',
            'CREDENTIALS': credentials,
+           'NAME': 'your-bigquery-dataset-name'
        }
    }
    ```
@@ -92,7 +91,7 @@ class Customer(models.Model):
     id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=100)
     email = models.EmailField()
-    
+
     class Meta:
         managed = False  # Important: we don't want Django to create/modify tables
         db_table = 'customers'  # Your BigQuery table name
