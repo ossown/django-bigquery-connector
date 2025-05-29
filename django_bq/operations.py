@@ -3,6 +3,7 @@ from django.conf import settings
 from django.utils.encoding import force_str
 from datetime import datetime, date, timedelta
 import django.apps
+import django.db.models
 
 
 class DatabaseOperations(BaseDatabaseOperations):
@@ -15,7 +16,21 @@ class DatabaseOperations(BaseDatabaseOperations):
         self.dataset = self.connection.settings_dict.get('NAME')
 
     def quote_name(self, name):
-        table_name_mapping = {m._meta.db_table: f'{self.dataset}.{m._meta.db_table}' for m in django.apps.apps.get_models()}
+        table_name_mapping = {}
+
+        # Include all explicitly declared models
+        for model in django.apps.apps.get_models():
+            table_name_mapping[model._meta.db_table] = f'{self.dataset}.{model._meta.db_table}'
+
+            # Include auto-created ManyToMany through models
+            for field in model._meta.get_fields():
+                if (
+                        isinstance(field, django.db.models.ManyToManyField) and
+                        field.remote_field.through and
+                        field.remote_field.through._meta.auto_created
+                ):
+                    m2m_model = field.remote_field.through
+                    table_name_mapping[m2m_model._meta.db_table] = f'{self.dataset}.{m2m_model._meta.db_table}'
         if '.' not in name and self.dataset:
             name = table_name_mapping.get(name, name)
         return f"`{name}`"
