@@ -21,8 +21,8 @@ class BigQueryCursor:
         self.description = None
 
     def execute(self, query, params=None):
-        if not query.strip().lower().startswith("select"):
-            raise NotImplementedError("Only SELECT queries are supported in BigQuery.")
+        if not query.strip().lower().startswith(("select", "insert", "update", "delete")):
+            raise NotImplementedError("Only SELECT, INSERT, UPDATE, and DELETE queries are supported in this connector.")
 
         if params:
             param_iter = iter(params)
@@ -47,8 +47,15 @@ class BigQueryCursor:
             query = re.sub(r"%s", replace, query)
 
         job = self.client.query(query)
-        self._results = list(job)
-        self.description = [(field.name,) for field in job.schema] if job.schema else []
+        try:
+            # for SELECT queries, the job.result() will return an iterable of rows
+            self._results = list(job)
+            self.description = [(field.name,) for field in job.schema] if job.schema else []
+        except Exception as e:
+            # DML queries (INSERT, UPDATE, DELETE) do not return rows
+            print('Error parsing results:', e)
+            self._results = []
+            self.description = []
         return self
 
     def fetchone(self):
