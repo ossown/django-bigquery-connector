@@ -82,6 +82,10 @@ class BigQueryCursor:
     def close(self):
         self._results = None
 
+    @property
+    def lastrowid(self):
+        return None  # BigQuery does not support lastrowid
+
 
 class DatabaseWrapper(BaseDatabaseWrapper):
     vendor = "bigquery"
