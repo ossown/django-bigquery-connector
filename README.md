@@ -1,3 +1,5 @@
+from setuptools.extern import names
+
 # Django BigQuery Connector
 
 A Django database backend for Google BigQuery, enabling Django ORM queries against BigQuery datasets.
@@ -5,8 +7,9 @@ A Django database backend for Google BigQuery, enabling Django ORM queries again
 ## Features
 
 - Use Django ORM to query BigQuery tables seamlessly
-- Read-only operations support
+- Read and Write operations support
 - Supports most Django ORM query methods and filters
+- Supports Django ORM save() method for inserting (and automatically switching to update if primary_key already exists)
 - GIS operations support (minimal)
 - Django admin integration
 
@@ -85,9 +88,10 @@ with connections['bigquery'].cursor() as cursor:
 1. Define models with BigQuery tables:
 
 ```python
+from django_bq.models import BaseBigQueryModel
 from django.db import models
 
-class Customer(models.Model):
+class Customer(BaseBigQueryModel):
     id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=100)
     email = models.EmailField()
@@ -100,6 +104,19 @@ class Customer(models.Model):
 2. Query using Django ORM:
 
 ```python
+# Insert a new record
+customer = Customer(id=1, name='John Doe', email='john.doe@internet.com')
+customer.save()
+
+# Update an existing record
+customer = Customer.objects.using('bigquery').get(id=1)
+customer.name = 'John Smith'
+customer.save()
+
+# Delete a record
+customer = Customer.objects.using('bigquery').get(id=1)
+customer.delete()
+
 # Get all records
 customers = Customer.objects.using('bigquery').all()
 
@@ -119,7 +136,7 @@ customer_stats = Customer.objects.using('bigquery').values('country').annotate(
 
 ## Limitations
 
-- Read-only operations only (no INSERT, UPDATE, DELETE)
+- Write operations are experimental, and might be limited to simple inserts, updates, and deletes
 - Regular expression operations need improvements
 - Some Django ORM features may not be fully supported
 - Complex JOIN operations may not work as expected
