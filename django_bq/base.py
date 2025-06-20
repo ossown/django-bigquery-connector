@@ -1,4 +1,5 @@
 from datetime import datetime, date, time
+import logging
 
 from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db.backends.utils import CursorWrapper, CursorDebugWrapper
@@ -13,6 +14,8 @@ from .introspection import DatabaseIntrospection
 from .operations import DatabaseOperations
 from .schema import DatabaseSchemaEditor
 
+logger = logging.getLogger("django.db.backends.base")
+
 
 class BigQueryCursor:
     def __init__(self, client):
@@ -23,6 +26,9 @@ class BigQueryCursor:
     def execute(self, query, params=None):
         if not query.strip().lower().startswith(("select", "insert", "update", "delete")):
             raise NotImplementedError("Only SELECT, INSERT, UPDATE, and DELETE queries are supported in this connector.")
+
+        logger.debug("Executing query:", query)
+        logger.debug('checking for params:', params)
 
         if params:
             param_iter = iter(params)
@@ -53,7 +59,7 @@ class BigQueryCursor:
             self.description = [(field.name,) for field in job.schema] if job.schema else []
         except Exception as e:
             # DML queries (INSERT, UPDATE, DELETE) do not return rows
-            print('Error parsing results:', e)
+            logger.error('Error parsing results:', e)
             self._results = []
             self.description = []
         return self
@@ -177,6 +183,14 @@ class DatabaseWrapper(BaseDatabaseWrapper):
             return True
         except Exception:
             return False
+
+    def commit(self):
+        """
+        Commit the current transaction.
+        BigQuery does not support transactions, so this is a no-op.
+        """
+        logger.debug('Bigquery does not support transactions, commit is a no-op.')
+        pass
 
     def _set_autocommit(self, autocommit):
         # No-op: BigQuery does not support transactions
