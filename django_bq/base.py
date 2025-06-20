@@ -1,4 +1,5 @@
 from datetime import datetime, date, time
+import logging
 
 from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db.backends.utils import CursorWrapper, CursorDebugWrapper
@@ -13,6 +14,8 @@ from .introspection import DatabaseIntrospection
 from .operations import DatabaseOperations
 from .schema import DatabaseSchemaEditor
 
+logger = logging.getLogger("django.db.backends.base")
+
 
 class BigQueryCursor:
     def __init__(self, client):
@@ -21,8 +24,11 @@ class BigQueryCursor:
         self.description = None
 
     def execute(self, query, params=None):
-        if not query.strip().lower().startswith("select"):
-            raise NotImplementedError("Only SELECT queries are supported in BigQuery.")
+        if not query.strip().lower().startswith(("select", "insert", "update", "delete")):
+            raise NotImplementedError("Only SELECT, INSERT, UPDATE, and DELETE queries are supported in this connector.")
+
+        logger.debug("Executing query:", query)
+        logger.debug('checking for params:', params)
 
         if params:
             param_iter = iter(params)
@@ -47,8 +53,15 @@ class BigQueryCursor:
             query = re.sub(r"%s", replace, query)
 
         job = self.client.query(query)
-        self._results = list(job)
-        self.description = [(field.name,) for field in job.schema] if job.schema else []
+        try:
+            # for SELECT queries, the job.result() will return an iterable of rows
+            self._results = list(job)
+            self.description = [(field.name,) for field in job.schema] if job.schema else []
+        except Exception as e:
+            # DML queries (INSERT, UPDATE, DELETE) do not return rows
+            logger.error('Error parsing results:', e)
+            self._results = []
+            self.description = []
         return self
 
     def fetchone(self):
@@ -75,6 +88,17 @@ class BigQueryCursor:
     def close(self):
         self._results = None
 
+    @property
+    def lastrowid(self):
+        return None  # BigQuery does not support lastrowid
+
+    @property
+    def rowcount(self):
+        if self._results is not None:
+            return len(self._results)
+        else:
+            return 0
+
 
 class DatabaseWrapper(BaseDatabaseWrapper):
     vendor = "bigquery"
@@ -88,8 +112,8 @@ class DatabaseWrapper(BaseDatabaseWrapper):
     SchemaEditorClass = DatabaseSchemaEditor
 
     data_types = {
-        "AutoField": "INT64",
-        "BigAutoField": "INT64",
+        # "AutoField": "INT64",
+        # "BigAutoField": "INT64",
         "BinaryField": "BYTES",
         "BooleanField": "BOOL",
         "CharField": "STRING",
@@ -159,6 +183,14 @@ class DatabaseWrapper(BaseDatabaseWrapper):
             return True
         except Exception:
             return False
+
+    def commit(self):
+        """
+        Commit the current transaction.
+        BigQuery does not support transactions, so this is a no-op.
+        """
+        logger.debug('Bigquery does not support transactions, commit is a no-op.')
+        pass
 
     def _set_autocommit(self, autocommit):
         # No-op: BigQuery does not support transactions
