@@ -1,4 +1,7 @@
 from django.db import models
+import logging
+
+logger = logging.getLogger("django.db.models")
 
 class BaseBigQueryModel(models.Model):
     """
@@ -8,16 +11,20 @@ class BaseBigQueryModel(models.Model):
         abstract = True
         managed = False  # This model is managed by BigQuery, not Django migrations
 
-    def update(self, **params):
+    def save(self, *args, **kwargs):
         """
-        Update valid fields of the model instance.
-        :param params:
-        :return:
+        Override save method to use BigQuery.
         """
-        valid_fields = [field.name for field in self._meta.get_fields()]
-        print(f'{valid_fields=}')
+        logger.debug('entering save')
+        logger.debug('checking if primary key already exists in table')
 
-        for key, value in params.items():
-            if key not in valid_fields:
-                raise ValueError(f"Invalid field: {key}")
-        self.__class__.objects.using('bigquery').filter(pk=self.pk).update(**params)
+        query_params =  {field.name: getattr(self, field.name) for field in self._meta.fields}
+
+        if not bool(self.__class__.objects.using('bigquery').filter(pk=self.pk)):
+            logger.info('primary key does not exist, inserting new record')
+            # If the instance does not have a primary key, insert it
+            self.__class__.objects.using('bigquery').bulk_create([self])
+        else:
+            logger.info('primary key exists, updating existing record')
+            # If the instance has a primary key, update it
+            self.__class__.objects.using('bigquery').filter(pk=self.pk).update(**query_params)
