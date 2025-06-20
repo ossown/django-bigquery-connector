@@ -86,6 +86,13 @@ class BigQueryCursor:
     def lastrowid(self):
         return None  # BigQuery does not support lastrowid
 
+    @property
+    def rowcount(self):
+        if self._results is not None:
+            return len(self._results)
+        else:
+            return 0
+
 
 class DatabaseWrapper(BaseDatabaseWrapper):
     vendor = "bigquery"
@@ -99,8 +106,8 @@ class DatabaseWrapper(BaseDatabaseWrapper):
     SchemaEditorClass = DatabaseSchemaEditor
 
     data_types = {
-        "AutoField": "INT64",
-        "BigAutoField": "INT64",
+        # "AutoField": "INT64",
+        # "BigAutoField": "INT64",
         "BinaryField": "BYTES",
         "BooleanField": "BOOL",
         "CharField": "STRING",
